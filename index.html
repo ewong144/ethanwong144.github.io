@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ethan Wong — Electrical Engineer</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    /* ============================================================
+       CSS VARIABLES — tweak colors/fonts here
+    ============================================================ */
+    :root {
+      --bg:        #0a0a0a;
+      --bg2:       #111111;
+      --bg3:       #1a1a1a;
+      --border:    #2a2a2a;
+      --accent:    #e8ff47;      /* electric yellow-green */
+      --accent2:   #47ffe8;      /* cyan highlight */
+      --text:      #e8e8e8;
+      --muted:     #666;
+      --mono:      'IBM Plex Mono', monospace;
+      --sans:      'IBM Plex Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       NOISE TEXTURE OVERLAY
+    ============================================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ============================================================
+       NAV
+    ============================================================ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 5rem;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero h1 {
+      font-family: var(--mono);
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero-sub {
+      max-width: 520px;
+      margin-top: 2rem;
+      font-size: 1rem;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .hero-links {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .btn {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.8rem;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn:hover { background: var(--accent); color: var(--bg); }
+
+    .btn-ghost {
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover { background: var(--border); color: var(--text); }
+
+    .hero-status {
+      position: absolute;
+      top: 6rem;
+      right: 3rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: right;
+      line-height: 2;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+
+    /* ============================================================
+       SECTIONS
+    ============================================================ */
+    section {
+      padding: 6rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      max-width: 80px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ============================================================
+       SKILLS
+    ============================================================ */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .skill-block {
+      background: var(--bg);
+      padding: 2rem;
+      transition: background 0.2s;
+    }
+
+    .skill-block:hover { background: var(--bg3); }
+
+    .skill-block h3 {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .skill-block:hover .tag {
+      border-color: #333;
+      color: var(--text);
+    }
+
+    /* ============================================================
+       PROJECTS
+    ============================================================ */
+    .projects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .project-card {
+      background: var(--bg);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      transition: background 0.2s;
+      cursor: default;
+    }
+
+    .project-card:hover { background: var(--bg2); }
+
+    .project-card:hover .project-img img {
+      transform: scale(1.03);
+    }
+
+    .project-info {
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--border);
+    }
+
+    .project-number {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      margin-bottom: 1.5rem;
+    }
+
+    .project-info h2 {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .project-date {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent2);
+      margin-bottom: 1.2rem;
+    }
+
+    .project-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .project-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tech-tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.6rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .project-img {
+      overflow: hidden;
+      min-height: 280px;
+      background: var(--bg3);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .project-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+      display: block;
+    }
+
+    /* --------------------------------------------------------
+       IMAGE PLACEHOLDER — shown when no image src is set.
+       To add an image: set the src attribute on the <img> tag
+       inside each .project-img div. The placeholder will hide
+       automatically once a valid src is provided.
+    -------------------------------------------------------- */
+    .img-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--border);
+      letter-spacing: 0.1em;
+      pointer-events: none;
+    }
+
+    .img-placeholder svg { opacity: 0.3; }
+
+    /* Hide placeholder when image loads */
+    .project-img img:not([src=""]):not([src]) ~ .img-placeholder { display: none; }
+
+    /* ============================================================
+       EXPERIENCE
+    ============================================================ */
+    .exp-entry {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 3rem;
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .exp-entry:last-child { border-bottom: none; }
+
+    .exp-meta {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.8;
+      padding-top: 0.15rem;
+    }
+
+    .exp-meta strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .exp-body h3 {
+      font-family: var(--mono);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .exp-body .exp-org {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent2);
+      margin-bottom: 1.2rem;
+    }
+
+    .exp-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .exp-bullets li {
+      font-size: 0.88rem;
+      color: var(--muted);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .exp-bullets li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--border);
+      font-family: var(--mono);
+    }
+
+    /* ============================================================
+       CONTACT
+    ============================================================ */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .contact-grid h2 {
+      font-family: var(--mono);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-grid h2 span { color: var(--accent); }
+
+    .contact-grid p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 380px;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .contact-link {
+      background: var(--bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.3rem 1.5rem;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .contact-link:hover { background: var(--bg3); }
+
+    .contact-link-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .contact-link-value {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+
+    .contact-link:hover .contact-link-value { color: var(--accent); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    /* ============================================================
+       ANIMATIONS
+    ============================================================ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.5rem; }
+      .hero { padding: 0 1.5rem 4rem; }
+      section { padding: 4rem 1.5rem; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .project-card { grid-template-columns: 1fr; }
+      .project-img { min-height: 220px; order: -1; }
+      .project-info { border-right: none; border-bottom: 1px solid var(--border); }
+      .exp-entry { grid-template-columns: 1fr; gap: 0.5rem; }
+      .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV
+  ============================================================ -->
+  <nav>
+    <a class="nav-logo" href="#">EW.portfolio</a>
+    <ul class="nav-links">
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero" id="home">
+    <div class="hero-grid-lines"></div>
+
+    <div class="hero-status">
+      <span class="status-dot"></span>Available for Co-op<br>
+      4, 8, or 12 months<br>
+      Vancouver, BC
+    </div>
+
+    <div class="hero-tag">// Electrical Engineering Student · UBC · GPA 4.0</div>
+    <h1>Ethan<br><span>Wong</span></h1>
+    <p class="hero-sub">
+      Senior Power &amp; Signals Engineer at UBC Solar Car. Building multi-layer PCBs,
+      embedded systems, and mixed-signal hardware from schematic to production.
+    </p>
+    <div class="hero-links">
+      <a class="btn" href="#projects">View Projects</a>
+      <a class="btn btn-ghost" href="mailto:ethan.wong144@gmail.com">Get in Touch</a>
+      <!-- TO ADD RESUME LINK: replace # with path to your resume PDF -->
+      <a class="btn btn-ghost" href="#">Resume ↗</a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SKILLS
+  ============================================================ -->
+  <section id="skills">
+    <div class="section-label">Technical Skills</div>
+    <div class="skills-grid">
+
+      <div class="skill-block">
+        <h3>Design</h3>
+        <div class="skill-tags">
+          <span class="tag">Altium Designer</span>
+          <span class="tag">KiCad</span>
+          <span class="tag">Quartus</span>
+          <span class="tag">FPGA</span>
+          <span class="tag">Solidworks</span>
+          <span class="tag">Fusion 360</span>
+          <span class="tag">VSCode</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <h3>Programming</h3>
+        <div class="skill-tags">
+          <span class="tag">C / C++</span>
+          <span class="tag">Python</span>
+          <span class="tag">MATLAB</span>
+          <span class="tag">SystemVerilog</span>
+          <span class="tag">Verilog</span>
+          <span class="tag">RISC-V Assembly</span>
+        </div>
+      </div>
+
+      <div class="skill-block">
+        <h3>Hardware</h3>
+        <div class="skill-tags">
+          <span class="tag">Soldering (SMD/THT)</span>
+          <span class="tag">Oscilloscope</span>
+          <span class="tag">STM32</span>
+          <span class="tag">CAN</span>
+          <span class="tag">SPI</span>
+          <span class="tag">I2C</span>
+          <span class="tag">UART</span>
+          <span class="tag">Raspberry Pi</span>
+          <span class="tag">Arduino</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROJECTS
+       ──────────────────────────────────────────────────────────
+       HOW TO ADD / SWAP IMAGES:
+       Each .project-img div contains an <img> tag.
+       Set the src attribute to your image file path, e.g.:
+         src="images/motor_controller.png"
+       Recommended: put all images in an /images/ folder
+       next to this index.html file.
+
+       Current image slots:
+         Project 1 — Motor Controller Interface PCB
+         Project 2 — Telemetry Board PCB
+         Project 3 — Remote Control Robot PCB (robot board)
+         Project 4 — Remote Control Robot PCB (remote board)
+         Project 5 — Assembled boards photo
+  ============================================================ -->
+  <section id="projects">
+    <div class="section-label">Projects</div>
+    <div class="projects-list">
+
+      <!-- PROJECT 1: Motor Controller Interface PCB -->
+      <div class="project-card">
+        <div class="project-info">
+          <div>
+            <div class="project-number">01 / 05</div>
+            <h2>Motor Controller Interface PCB</h2>
+            <div class="project-date">Nov 2025 — Apr 2026</div>
+            <p class="project-desc">
+              4-layer PCB interfacing the M2096 Mitsuba Motor Controller across 16 signals
+              including speed, direction, and torque. Features I2C-controlled DACs, a CAN
+              transceiver on STM32F103RCT6, differential pair routing, stitching vias, and
+              a continuous ground plane for analog signal integrity.
+            </p>
+          </div>
+          <div class="project-tech">
+            <span class="tech-tag">Altium Designer</span>
+            <span class="tech-tag">STM32</span>
+            <span class="tech-tag">CAN</span>
+            <span class="tech-tag">I2C</span>
+            <span class="tech-tag">SPI</span>
+          </div>
+        </div>
+        <div class="project-img">
+          <!-- ADD IMAGE: src="images/motor_controller.png" -->
+          <img src="images/motor_controller.png" alt="Motor Controller Interface PCB" onerror="this.style.display='none'"/>
+          <div class="img-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="m21 15-5-5L5 21"/>
+            </svg>
+            images/motor_controller.png
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 2: Telemetry Board PCB -->
+      <div class="project-card">
+        <div class="project-img">
+          <!-- ADD IMAGE: src="images/telemetry.png" -->
+          <img src="images/telemetry.png" alt="Telemetry Board PCB" onerror="this.style.display='none'"/>
+          <div class="img-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="m21 15-5-5L5 21"/>
+            </svg>
+            images/telemetry.png
+          </div>
+        </div>
+        <div class="project-info" style="border-right:none; border-left: 1px solid var(--border)">
+          <div>
+            <div class="project-number">02 / 05</div>
+            <h2>Telemetry Board PCB</h2>
+            <div class="project-date">Feb 2026 — Apr 2026</div>
+            <p class="project-desc">
+              Integrates XBEE Radio and NETGEAR cellular hotspot over UART to transmit
+              CAN bus data to InfluxDB for Grafana display. Communicates with NEO-M9V-20B
+              GPS and BNO086 IMU over I2C, with USB-PD power delivery for Raspberry Pi
+              and a Memorator connection for CAN data logging.
+            </p>
+          </div>
+          <div class="project-tech">
+            <span class="tech-tag">Altium Designer</span>
+            <span class="tech-tag">STM32</span>
+            <span class="tech-tag">XBEE Radio</span>
+            <span class="tech-tag">GPS</span>
+            <span class="tech-tag">IMU</span>
+            <span class="tech-tag">I2C</span>
+            <span class="tech-tag">UART</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 3: Robot PCB -->
+      <div class="project-card">
+        <div class="project-info">
+          <div>
+            <div class="project-number">03 / 05</div>
+            <h2>Magnetic Field Following Robot PCB</h2>
+            <div class="project-date">Mar 2026</div>
+            <p class="project-desc">
+              Multi-system robot PCB with NRF24L01 2.4GHz radio, IR communications,
+              discrete MOSFET H-Bridge motor driver with gate drive and optocoupler
+              isolation, op-amp inductor analog signal conditioning, and dual-input
+              galvanic isolation separating microcontroller and motor power domains.
+            </p>
+          </div>
+          <div class="project-tech">
+            <span class="tech-tag">Embedded C</span>
+            <span class="tech-tag">STM32</span>
+            <span class="tech-tag">EFM8</span>
+            <span class="tech-tag">Altium</span>
+            <span class="tech-tag">PWM</span>
+          </div>
+        </div>
+        <div class="project-img">
+          <!-- ADD IMAGE: src="images/robot_pcb.png" -->
+          <img src="images/robot_pcb.png" alt="Robot PCB" onerror="this.style.display='none'"/>
+          <div class="img-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="m21 15-5-5L5 21"/>
+            </svg>
+            images/robot_pcb.png
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 4: Remote Control PCB -->
+      <div class="project-card">
+        <div class="project-img">
+          <!-- ADD IMAGE: src="images/remote_pcb.png" -->
+          <img src="images/remote_pcb.png" alt="Remote Control PCB" onerror="this.style.display='none'"/>
+          <div class="img-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="m21 15-5-5L5 21"/>
+            </svg>
+            images/remote_pcb.png
+          </div>
+        </div>
+        <div class="project-info" style="border-right:none; border-left: 1px solid var(--border)">
+          <div>
+            <div class="project-number">04 / 05</div>
+            <h2>Remote Control PCB</h2>
+            <div class="project-date">Mar 2026</div>
+            <p class="project-desc">
+              Custom remote control PCB featuring 555 timer circuit IR transmission,
+              dual LCD interface, NRF24L01 2.4GHz radio, UART ports, and user I/O.
+              Firmware implements 2kHz PWM servo control via STM32CubeMX with dynamic
+              CCR register duty cycle adjustment and NEC IR protocol at 38kHz.
+            </p>
+          </div>
+          <div class="project-tech">
+            <span class="tech-tag">STM32</span>
+            <span class="tech-tag">IR / NEC Protocol</span>
+            <span class="tech-tag">NRF24L01</span>
+            <span class="tech-tag">LCD</span>
+            <span class="tech-tag">UART</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 5: Assembled Boards Photo -->
+      <div class="project-card">
+        <div class="project-info">
+          <div>
+            <div class="project-number">05 / 05</div>
+            <h2>Assembled &amp; Soldered Boards</h2>
+            <div class="project-date">2026</div>
+            <p class="project-desc">
+              Hands-on bring-up and assembly of all boards: hand-soldering SMD and THT
+              components, systematic fault diagnosis using oscilloscopes and multimeters,
+              and iterative design revisions to resolve signal integrity and communication
+              issues through functional validation.
+            </p>
+          </div>
+          <div class="project-tech">
+            <span class="tech-tag">SMD Soldering</span>
+            <span class="tech-tag">THT Soldering</span>
+            <span class="tech-tag">Oscilloscope</span>
+            <span class="tech-tag">Board Bring-Up</span>
+          </div>
+        </div>
+        <div class="project-img">
+          <!-- ADD IMAGE: src="images/assembled.jpg" -->
+          <img src="images/assembled.jpg" alt="Assembled PCBs" onerror="this.style.display='none'"/>
+          <div class="img-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <path d="m21 15-5-5L5 21"/>
+            </svg>
+            images/assembled.jpg
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       EXPERIENCE
+  ============================================================ -->
+  <section id="experience">
+    <div class="section-label">Experience &amp; Education</div>
+
+    <div class="exp-entry">
+      <div class="exp-meta">
+        <strong>Sep 2025 — Present</strong>
+        UBC Solar Car<br>
+        Vancouver, BC
+      </div>
+      <div class="exp-body">
+        <h3>Senior Power &amp; Signals Engineer</h3>
+        <div class="exp-org">Engineering Student Team</div>
+        <ul class="exp-bullets">
+          <li>Designed, simulated, and validated multi-layer PCBs from schematic to production, implementing grounding strategies, decoupling techniques, and controlled impedance routing</li>
+          <li>Performed board bring-up and functional validation, hand-soldering SMD/THT components and diagnosing faults with oscilloscopes and multimeters</li>
+          <li>Authored comprehensive electrical system documentation including design specs, component rationale, and validation results</li>
+          <li>Led structured design reviews with the Firmware team, aligning hardware-software interfaces through iterative testing</li>
+          <li>Mentored new team members in PCB design, schematic capture, and component selection</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-entry">
+      <div class="exp-meta">
+        <strong>Aug 2024 — Apr 2029</strong>
+        University of British Columbia<br>
+        Vancouver, BC
+      </div>
+      <div class="exp-body">
+        <h3>Bachelor of Applied Science, Electrical Engineering</h3>
+        <div class="exp-org">CGPA: 4.00 / 4.33 · Available for Co-op: 4, 8, or 12 months</div>
+        <ul class="exp-bullets">
+          <li>Coursework in circuit analysis, embedded systems, digital logic, and signal processing</li>
+          <li>Expected graduation April 2029</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+       CONTACT
+  ============================================================ -->
+  <section id="contact">
+    <div class="section-label">Contact</div>
+    <div class="contact-grid">
+      <div>
+        <h2>Let's build<br><span>something.</span></h2>
+        <p>Open to hardware engineering internships and co-op positions. Available for 4, 8, or 12 month terms.</p>
+      </div>
+      <div class="contact-links">
+        <a class="contact-link" href="mailto:ethan.wong144@gmail.com">
+          <span class="contact-link-label">Email</span>
+          <span class="contact-link-value">ethan.wong144@gmail.com</span>
+        </a>
+        <a class="contact-link" href="https://www.linkedin.com/in/ethan-wong144" target="_blank">
+          <span class="contact-link-label">LinkedIn</span>
+          <span class="contact-link-value">ethan-wong144 ↗</span>
+        </a>
+        <a class="contact-link" href="https://github.com/ewong144" target="_blank">
+          <span class="contact-link-label">GitHub</span>
+          <span class="contact-link-value">ewong144 ↗</span>
+        </a>
+        <a class="contact-link" href="tel:+16043603882">
+          <span class="contact-link-label">Phone</span>
+          <span class="contact-link-value">+1 (604) 360-3882</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer>
+    <span>© 2026 Ethan Wong</span>
+    <span>Electrical Engineering · UBC · Vancouver, BC</span>
+  </footer>
+
+</body>
+</html>
